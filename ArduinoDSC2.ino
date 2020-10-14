@@ -105,46 +105,42 @@ void loop(){
   byte inchar;
   char cmd[80];
 
-
-  // throw away rest of command - we don't need it
-  //Serial.flush();
-
   inchar = readByte();
 
-  if (inchar == 'Q')
-  {
+  // decode request
+  if (inchar == 'Q') {
+    // encoder position request common to many devices
+    // (BBox, AstroDevices Nexus, Intelliscope/NGCMax)
     printEncoderValue(AZ_pos);
     Serial.print("\t");
     printEncoderValue(ALT_pos);
     Serial.print("\r");
   }
-  else if (inchar == 'R' || inchar == 'Z' || inchar == 'I')
-  {
+  else if (inchar == 'R' || inchar == 'Z') {
+    // set encoder resolution
+    // (Bbox, Astrdevices Nexus, Intelliscope/NGCMax)
+
+    //
     // read to a <CR>
     readLine(cmd, 79);
 
-#ifdef DEBUG    
-    Serial.println(cmd);
-#endif
-
-    if (inchar == 'R' || inchar == 'I') {
+    if (inchar == 'R') {
       parseSetResolutionCmd(cmd);
       Serial.print("R");
     }
-    else if (inchar == 'Z')
-    {
+    else if (inchar == 'Z') {
       parseSetResolutionCmd(cmd);
       Serial.print("*"); 
     }
-
   }
-  else if (inchar == 'z')
-  {
-      parseEkSetResolutionCmd();      
+  else if (inchar == 'z') {
+    // set encoder resolution
+    // (DaveEk)
+    parseEkSetResolutionCmd();
   }
-  else if (inchar == 'r' || inchar == 'H') 
-  {
+  else if (inchar == 'r' || inchar == 'H') {
     // print out resolution 
+    // (Bbox, Astrdevices Nexus, Intelliscope/NGCMax)
     printEncoderValue(RES_AZ);
     Serial.print("\t");
     printEncoderValue(RES_ALT);
@@ -153,6 +149,7 @@ void loop(){
   else if (inchar == 'V')
   {
     //version
+    // (Astrdevices Nexus, others?)
     Serial.print("V1.0.0\r");
   }
   else if (inchar == 'T')
@@ -164,13 +161,16 @@ void loop(){
   }
   else if (inchar == 'q')
   {
-    // error count
+    // error count?
     Serial.print("00000\r");
   }
   else if (inchar == 'P')
   {
-    // encoder power up
-    Serial.print("P");
+    // encoder status
+    // (Bbox, Astrdevices Nexus, Intelliscope/NGCMax)
+    // # alt errors, # az errors, power level
+    // always return no errors and power OK
+    Serial.print("001");
   }
   else if (inchar == 'p')
   {
